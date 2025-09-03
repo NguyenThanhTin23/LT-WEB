@@ -126,7 +126,7 @@
             <!-- Remember me + Forgot password -->
             <div class="form-options">
                 <label><input type="checkbox" name="remember"> Nhớ tôi</label>
-                <a href="#">Quên mật khẩu?</a>
+                   <a href="${pageContext.request.contextPath}/view/forgot.jsp">Quên mật khẩu?</a>
             </div>
 
             <!-- Submit button -->
@@ -135,7 +135,8 @@
             <!-- Register link -->
             <div class="register-link">
                 Nếu bạn chưa có tài khoản trên hệ thống, thì hãy
-                <a href="register.jsp">Đăng ký</a>
+               <a href="${pageContext.request.contextPath}/view/register.jsp">Đăng ký</a>
+
             </div>
         </form>
     </div>

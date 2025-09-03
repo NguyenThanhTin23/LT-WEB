@@ -11,4 +11,6 @@ public interface UserService {
 	boolean checkExistEmail(String email);
 	boolean checkExistUsername(String username);
 	boolean checkExistPhone(String phone);
+	public boolean checkEmailExist(String email);
+	public void updatePasswordByEmail(String email, String newPassword);
 }

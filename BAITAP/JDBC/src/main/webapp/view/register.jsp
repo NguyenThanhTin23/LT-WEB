@@ -99,7 +99,8 @@
 
             <!-- Login Link -->
             <div class="text-center">
-                Nếu bạn đã có tài khoản? <a href="login.jsp">Đăng nhập</a>
+                Nếu bạn đã có tài khoản?<a href="${pageContext.request.contextPath}/view/login.jsp">Đăng nhập</a>
+
             </div>
         </form>
     </div>
