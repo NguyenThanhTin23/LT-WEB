@@ -1,12 +1,13 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
-<!DOCTYPE html>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
+    <title>Upload Demo</title>
 </head>
 <body>
-<h1>Hello</h1>
+    <h2>Upload File với Servlet Multipart</h2>
+    <form method="post" action="${pageContext.request.contextPath}/multiPartServlet" enctype="multipart/form-data">
+        Chọn file: <input type="file" name="file" />
+        <input type="submit" value="Upload" />
+    </form>
 </body>
 </html>
