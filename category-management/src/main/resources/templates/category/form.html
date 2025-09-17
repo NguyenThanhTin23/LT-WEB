@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Category Form</title>
+</head>
+<body>
+
+<section layout:fragment="content">
+    <h1 th:text="${category.id == null ? 'Add New Category' : 'Edit Category'}">Category Form</h1>
+    <form th:action="@{/categories/save}" th:object="${category}" method="post">
+        <input type="hidden" th:field="*{id}" />
+
+        <div class="mb-3">
+            <label for="name" class="form-label">Category Name:</label>
+            <input type="text" id="name" th:field="*{name}" class="form-control" required/>
+        </div>
+
+        <div class="mb-3 form-check">
+            <input type="checkbox" id="status" th:field="*{status}" class="form-check-input" />
+            <label for="status" class="form-check-label">Active</label>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a th:href="@{/categories}" class="btn btn-secondary">Cancel</a>
+    </form>
+</section>
+
+</body>
+</html>
