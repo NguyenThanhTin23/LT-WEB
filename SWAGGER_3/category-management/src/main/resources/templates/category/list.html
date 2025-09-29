@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout.html}" lang="vi">
+
+<head>
+    <title>Danh mục</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="p-4 bg-white shadow-sm rounded">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>Danh mục (AJAX)</h2>
+            <div class="d-flex gap-2">
+                <input id="kwCat" class="form-control" placeholder="Tìm theo tên...">
+                <button class="btn btn-outline-primary" onclick="loadCategories(0)">Tìm</button>
+                <button class="btn btn-primary" onclick="openCatAdd()">Thêm</button>
+            </div>
+        </div>
+
+        <table class="table table-bordered">
+            <thead>
+            <tr><th>ID</th><th>Tên</th><th>Trạng thái</th><th>Thao tác</th></tr>
+            </thead>
+            <tbody id="catBody"></tbody>
+        </table>
+
+        <nav><ul class="pagination" id="catPaging"></ul></nav>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="catModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="catTitle">Thêm danh mục</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="catId">
+                    <div class="mb-3">
+                        <label class="form-label">Tên</label>
+                        <input id="catName" class="form-control" required>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="catStatus" checked>
+                        <label class="form-check-label" for="catStatus">Kích hoạt</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button class="btn btn-primary" onclick="saveCat()">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+let cm;
+document.addEventListener('DOMContentLoaded', ()=>{
+    cm = new bootstrap.Modal('#catModal');
+    loadCategories(0);
+});
+
+function loadCategories(page){
+    const kw = $('#kwCat').val() || '';
+    $.get('/api/categories',{keyword:kw, page, size:5}, res=>{
+        const rows = res.content.map(c=>`
+          <tr>
+            <td>${c.id}</td>
+            <td>${c.name}</td>
+            <td>${c.status ? 'Active':'Inactive'}</td>
+            <td>
+              <button class="btn btn-sm btn-success" onclick="openCatEdit(${c.id})">Sửa</button>
+              <button class="btn btn-sm btn-danger"  onclick="delCat(${c.id})">Xóa</button>
+            </td>
+          </tr>`).join('');
+        $('#catBody').html(rows);
+
+        // paging
+        const pages = [...Array(res.totalPages).keys()].map(i=>`
+          <li class="page-item ${i===res.number?'active':''}">
+            <a class="page-link" href="javascript:void(0)" onclick="loadCategories(${i})">${i+1}</a>
+          </li>`).join('');
+        $('#catPaging').html(pages);
+    });
+}
+
+function openCatAdd(){
+    $('#catId').val('');
+    $('#catName').val('');
+    $('#catStatus').prop('checked',true);
+    $('#catTitle').text('Thêm danh mục');
+    cm.show();
+}
+
+function openCatEdit(id){
+    $.get('/api/categories/'+id, c=>{
+        $('#catId').val(c.id);
+        $('#catName').val(c.name);
+        $('#catStatus').prop('checked', !!c.status);
+        $('#catTitle').text('Sửa danh mục');
+        cm.show();
+    });
+}
+
+function saveCat(){
+    const id=$('#catId').val();
+    const data={name:$('#catName').val(), status:$('#catStatus').is(':checked')};
+    const ajax = id? {url:'/api/categories/'+id, type:'PUT'} : {url:'/api/categories', type:'POST'};
+    $.ajax({...ajax, contentType:'application/json', data:JSON.stringify(data), success:()=>{ cm.hide(); loadCategories(0); }});
+}
+
+function delCat(id){
+    if(confirm('Xóa danh mục?'))
+        $.ajax({url:'/api/categories/'+id, type:'DELETE', success:()=>loadCategories(0)});
+}
+</script>
+</body>
+</html>

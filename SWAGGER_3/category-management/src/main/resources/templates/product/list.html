@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout.html}" lang="vi">
+
+<head>
+    <title>Sản phẩm</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="p-4 bg-white shadow-sm rounded">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>Sản phẩm (AJAX)</h2>
+            <div class="d-flex gap-2">
+                <input id="kwPro" class="form-control" placeholder="Tìm theo tên...">
+                <button class="btn btn-outline-primary" onclick="loadProducts(0)">Tìm</button>
+                <button class="btn btn-primary" onclick="openProAdd()">Thêm</button>
+            </div>
+        </div>
+
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>ID</th><th>Tên</th><th>Giá</th><th>Danh mục</th><th>Trạng thái</th><th>Thao tác</th>
+            </tr>
+            </thead>
+            <tbody id="proBody"></tbody>
+        </table>
+
+        <nav><ul class="pagination" id="proPaging"></ul></nav>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="proModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="proTitle">Thêm sản phẩm</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="proId">
+                    <div class="mb-3">
+                        <label class="form-label">Tên</label>
+                        <input id="proName" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Giá</label>
+                        <input id="proPrice" type="number" step="0.01" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Danh mục</label>
+                        <select id="proCat" class="form-select"></select>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="proStatus" checked>
+                        <label class="form-check-label" for="proStatus">Kích hoạt</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button class="btn btn-primary" onclick="savePro()">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+let pm;
+document.addEventListener('DOMContentLoaded', ()=>{
+    pm = new bootstrap.Modal('#proModal');
+    loadProducts(0);
+});
+
+function loadCategoriesSelect(selectedId){
+    $.get('/api/categories',{page:0, size:100}, res=>{
+        const opts = res.content.map(c=>`
+            <option value="${c.id}" ${c.id===selectedId?'selected':''}>${c.name}</option>
+        `).join('');
+        $('#proCat').html(opts);
+    });
+}
+
+function loadProducts(page){
+    const kw = $('#kwPro').val() || '';
+    $.get('/api/products',{keyword:kw, page, size:5}, res=>{
+        const rows = res.content.map(p=>`
+          <tr>
+            <td>${p.id}</td>
+            <td>${p.name}</td>
+            <td>${p.price?.toLocaleString('vi-VN')}</td>
+            <td>${p.category?.name||''}</td>
+            <td>${p.status ? 'Active':'Inactive'}</td>
+            <td>
+              <button class="btn btn-sm btn-success" onclick="openProEdit(${p.id})">Sửa</button>
+              <button class="btn btn-sm btn-danger" onclick="delPro(${p.id})">Xóa</button>
+            </td>
+          </tr>`).join('');
+        $('#proBody').html(rows);
+
+        const pages = [...Array(res.totalPages).keys()].map(i=>`
+          <li class="page-item ${i===res.number?'active':''}">
+            <a class="page-link" href="javascript:void(0)" onclick="loadProducts(${i})">${i+1}</a>
+          </li>`).join('');
+        $('#proPaging').html(pages);
+    });
+}
+
+function openProAdd(){
+    $('#proId').val('');
+    $('#proName').val('');
+    $('#proPrice').val('');
+    $('#proStatus').prop('checked',true);
+    $('#proTitle').text('Thêm sản phẩm');
+    loadCategoriesSelect();
+    pm.show();
+}
+
+function openProEdit(id){
+    $.get('/api/products/'+id, p=>{
+        $('#proId').val(p.id);
+        $('#proName').val(p.name);
+        $('#proPrice').val(p.price);
+        $('#proStatus').prop('checked', !!p.status);
+        $('#proTitle').text('Sửa sản phẩm');
+        loadCategoriesSelect(p.category?.id);
+        pm.show();
+    });
+}
+
+function savePro(){
+    const id=$('#proId').val();
+    const data={
+        name: $('#proName').val(),
+        price: parseFloat($('#proPrice').val()||0),
+        status: $('#proStatus').is(':checked'),
+        category: { id: parseInt($('#proCat').val()) }
+    };
+    const ajax = id? {url:'/api/products/'+id, type:'PUT'} : {url:'/api/products', type:'POST'};
+    $.ajax({...ajax, contentType:'application/json', data:JSON.stringify(data), success:()=>{
+        pm.hide(); loadProducts(0);
+    }});
+}
+
+function delPro(id){
+    if(confirm('Xóa sản phẩm?'))
+        $.ajax({url:'/api/products/'+id, type:'DELETE', success:()=>loadProducts(0)});
+}
+</script>
+</body>
+</html>
