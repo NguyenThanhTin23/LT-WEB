@@ -1,0 +1,16 @@
+body{font-family:Segoe UI,system-ui,Arial,sans-serif;background:#f5f7fb;margin:0}
+.container{max-width:900px;margin:40px auto;background:#fff;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.08);padding:24px}
+h2{margin:0 0 16px}
+.connect{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.connect input,.connect select{padding:10px;border:1px solid #e3e6ef;border-radius:10px;flex:1;min-width:160px}
+.connect button{padding:10px 14px;border:0;border-radius:10px;background:#0a7d3d;color:#fff;cursor:pointer}
+.connect button[disabled]{background:#9fb6a8;cursor:not-allowed}
+.chat{border:1px solid #e3e6ef;border-radius:12px;padding:12px;background:#fafbff}
+#messages{list-style:none;padding:0;margin:0;height:420px;overflow:auto}
+#messages li{margin:8px 0;padding:10px 12px;border-radius:12px;max-width:72%}
+#messages li.me{background:#e7f7ed;margin-left:auto}
+#messages li.other{background:#eef1ff}
+#messages li.system{background:#f0f0f0;text-align:center;font-size:12px;color:#666;max-width:100%}
+.send{display:flex;gap:8px;margin-top:10px}
+.send input{flex:1;padding:12px;border:1px solid #e3e6ef;border-radius:10px}
+.send button{padding:12px 16px;border:0;border-radius:10px;background:#0a7d3d;color:#fff;cursor:pointer}
